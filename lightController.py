@@ -78,42 +78,35 @@ temp_commands = [
     {'transitiontime':config.transition_time, 'bri':config.brightness, 'ct':temps['cool']}
 ]
 
+on_status = [True, False]
+
 hue_iter = ListIter(hue_commands)
 temp_iter = ListIter(temp_commands)
+on_iter = ListIter(on_status)
 
-'''
-
-
-@skywriter.tap()
-def tap(position):
-    print('Tap!', position)
-
-@skywriter.touch()
-def touch(position):
-    print('Touch!', position)
-'''
 @skywriter.double_tap()
 def doubletap(position):
     print('Double tap!', position)
+    b.set_group(ctrl_grp,'on',on_iter.next())
 
 @skywriter.flick()
 def flick(start,finish):
-    print(start, finish)
-    
-    if (finish == 'north'):
-        b.set_group(ctrl_grp, hue_iter.prev())
+    print('flick captured: ', start, finish)
+    if (on_iter.current() == True):
+        if (finish == 'north'):
+            b.set_group(ctrl_grp, hue_iter.prev())
 
-    if (finish == 'south'):
-        b.set_group(ctrl_grp, hue_iter.next())
+        if (finish == 'south'):
+            b.set_group(ctrl_grp, hue_iter.next())
 
-    if (finish == 'east'):
-        if(config.brightness>84):
-            config.setBrightness(config.brightness-84)
-        else:
-            config.setBrightness(254)
-        b.set_group(ctrl_grp, 'bri', config.brightness)
+        if (finish == 'east'):
+            if(config.brightness>84):
+                config.setBrightness(config.brightness-84)
+            else:
+                config.setBrightness(254)
+            b.set_group(ctrl_grp, 'bri', config.brightness)
 
-    if (finish == 'west'):
-        b.set_group(ctrl_grp, temp_iter.next())
+        if (finish == 'west'):
+            b.set_group(ctrl_grp, temp_iter.next())
 
 signal.pause()
